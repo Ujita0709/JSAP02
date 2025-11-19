@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Promise vs setTimeout</title>
+</head>
+<body>
+  <div class="container">
+    <h2>Promise と setTimeout の順序</h2>
+    <p>マイクロタスク（Promise）とマクロタスク（setTimeout）の実行順を確認します。</p>
+    <pre><code>  setTimeout(() => console.log("timeout"), 0);
+  Promise.resolve().then(() => console.log("promise"));
+  console.log("sync");</code></pre>
+    <!--実行ボタンを押すとrunDemoが実行される-->
+    <button id="run">実行</button>
+    <!--実行結果を表示する領域-->
+    <div id="out" class="log" style="margin-top:12px"></div>
+  </div>
+
+</body>
+</html>
