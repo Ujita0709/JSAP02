@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>通貨変換アプリ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+  <h1>通貨変換アプリ</h1>
+  <p>
+    通貨を変換します。
+  </p>
+  <div class="row">
+    <label for="amount">金額:</label>
+    <input id="amount" type="number" value="1000" min="0" step="0.01">
+  </div>
+  <div class="row">
+    <label for="from">変換元:</label>
+    <select id="from">
+      <option value="JPY">JPY（日本円）</option>
+      <option value="USD">USD（米ドル）</option>
+      <option value="EUR">EUR（ユーロ）</option>
+      <option value="GBP">GBP（ポンド）</option>
+      <option value="CNY">CNY（人民元）</option>
+    </select>
+  </div>
+  <div class="row">
+    <label for="to">変換先:</label>
+    <select id="to">
+      <option value="USD">USD（米ドル）</option>
+      <option value="JPY">JPY（日本円）</option>
+      <option value="EUR">EUR（ユーロ）</option>
+      <option value="GBP">GBP（ポンド）</option>
+      <option value="CNY">CNY（人民元）</option>
+    </select>
+  </div>
+  <button id="convert">変換する</button>
+  <div id="status"></div>
+  <div id="error"></div>
+  <div id="result"></div>
+  <p>
+    ※レートは <a href="https://api.frankfurter.app/latest" target="_blank" rel="noopener noreferrer">Frankfurter API</a> の最新レートを使用します。
+  </p>
+
+  <script>
+    //入力された金額
+    const amountInput = document.getElementById("amount");
+    //変換元の通貨
+    const fromSelect = document.getElementById("from");
+    //変換先の通貨
+    const toSelect = document.getElementById("to");
+    //「変換する」ボタン
+    const convertButton = document.getElementById("convert");
+    //プログラムの進行状況表示
+    const statusDiv = document.getElementById("status");
+    //エラー表示
+    const errorDiv = document.getElementById("error");
+    //結果表示
+    const resultDiv = document.getElementById("result");
+
+    //変換ボタンを押したときの操作
+    //asyncは通貨レートをFrankfurterAPIから取得する際にawaitを使用するため記述
+    convertButton.addEventListener("click", async () => {
+      //入力された金額を実数に変換する
+      const amount = parseFloat(amountInput.value);
+      //変換元の通貨
+      const from = fromSelect.value;
+      //変換先の通貨
+      const to = toSelect.value;
+
+      // 入力チェック：金額が入力されていないか負の値が入力されている場合はエラー表示する
+      if (isNaN(amount) || amount <= 0) {
+        errorDiv.textContent = "金額を正しく入力してください。";
+        statusDiv.textContent = "";
+        resultDiv.textContent = "";
+        return;
+      }
+      // 変換元と変換先が同じ場合エラー表示する
+      if (from === to) {
+        errorDiv.textContent = "変換元と変換先が同じです。別の通貨を選択してください。";
+        statusDiv.textContent = "";
+        resultDiv.textContent = "";
+        return;
+      }
+
+      // 通貨レートをfrankfurterAPIから取得するまで以下の表示を行う
+      errorDiv.textContent = "";
+      resultDiv.textContent = "";
+      statusDiv.textContent = "レート取得中...";
+
+      // FrankfurterAPI
+      const url =
+        `https://api.frankfurter.app/latest?amount=${encodeURIComponent(amount)}&from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`;
+
+      try {
+        //FrankfurterAPIからのレスポンス
+        const res = await fetch(url);
+        //レスポンスが正常に返されなかった場合
+        if (!res.ok) {
+          throw new Error("HTTPエラー: " + res.status);
+        }
+        //レスポンスからJSONを抽出する
+        const data = await res.json();
+        console.log("APIレスポンス:", data); 
+
+        // data.rates[to] が変換後の金額
+        const converted = data && data.rates && typeof data.rates[to] === "number"
+          ? data.rates[to]
+          : null;
+
+        //変換ができなかった場合
+        if (!converted) {
+          throw new Error("為替レートを取得できませんでした。（rates が見つかりません）");
+        }
+
+        //1単位あたりのレートを計算
+        const ratePerUnit = converted / data.amount;
+
+        //1単位あたりのレートを表示
+        statusDiv.textContent =
+          `1 ${from} = ${ratePerUnit.toFixed(4)} ${to}（レート日: ${data.date}）`;
+        //変換前後の金額を表示
+        resultDiv.textContent =
+          `${amount} ${from} は約 ${converted.toFixed(2)} ${to} です。`;
+
+      //変換ができなかった時はエラー表示
+      } catch (err) {
+        console.error(err);
+        statusDiv.textContent = "";
+        resultDiv.textContent = "";
+        errorDiv.textContent = "レート取得時にエラーが発生しました: " + err.message;
+      }
+    });
+  </script>
+</body>
+</html>
