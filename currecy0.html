@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>通貨変換アプリ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+  <h1>通貨変換アプリ</h1>
+  <p>
+    通貨を変換します。
+  </p>
+  <div class="row">
+    <label for="amount">金額:</label>
+    <input id="amount" type="number" value="1000" min="0" step="0.01">
+  </div>
+  <div class="row">
+    <label for="from">変換元:</label>
+    <select id="from">
+      <option value="JPY">JPY（日本円）</option>
+      <option value="USD">USD（米ドル）</option>
+      <option value="EUR">EUR（ユーロ）</option>
+      <option value="GBP">GBP（ポンド）</option>
+      <option value="CNY">CNY（人民元）</option>
+    </select>
+  </div>
+  <div class="row">
+    <label for="to">変換先:</label>
+    <select id="to">
+      <option value="USD">USD（米ドル）</option>
+      <option value="JPY">JPY（日本円）</option>
+      <option value="EUR">EUR（ユーロ）</option>
+      <option value="GBP">GBP（ポンド）</option>
+      <option value="CNY">CNY（人民元）</option>
+    </select>
+  </div>
+  <button id="convert">変換する</button>
+  <div id="status"></div>
+  <div id="error"></div>
+  <div id="result"></div>
+  <p>
+    ※レートは <a href="https://api.frankfurter.app/latest" target="_blank" rel="noopener noreferrer">Frankfurter API</a> の最新レートを使用します。
+  </p>
+
+</body>
+</html>
